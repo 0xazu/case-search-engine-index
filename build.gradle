@@ -1,0 +1,56 @@
+plugins {
+    id 'java'
+    id 'idea'
+    id 'application'
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+def versions = [
+        AkkaVersion: "2.6.15",
+        AkkaHttpVersion: "10.2.4",
+        ScalaBinary: "2.13",
+        SlickVersion: "3.3.3"
+]
+
+dependencies {
+    implementation platform("com.typesafe.akka:akka-http-bom_${versions.ScalaBinary}:${versions.AkkaHttpVersion}")
+    implementation platform("com.typesafe.akka:akka-bom_${versions.ScalaBinary}:${versions.AkkaVersion}")
+
+    implementation "com.typesafe.akka:akka-http_${versions.ScalaBinary}"
+    implementation "com.typesafe.akka:akka-http-jackson_${versions.ScalaBinary}"
+    implementation "com.typesafe.akka:akka-actor-typed_${versions.ScalaBinary}:${versions.AkkaVersion}"
+    implementation "com.typesafe.akka:akka-stream_${versions.ScalaBinary}:${versions.AkkaVersion}"
+    implementation "com.typesafe.akka:akka-serialization-jackson_${versions.ScalaBinary}"
+
+    // Persistence
+    implementation "com.typesafe.akka:akka-persistence-typed_${versions.ScalaBinary}"
+    implementation "com.lightbend.akka:akka-persistence-jdbc_${versions.ScalaBinary}:5.0.1"
+    implementation "com.typesafe.akka:akka-persistence-query_${versions.ScalaBinary}:${versions.AkkaVersion}"
+    implementation "com.typesafe.slick:slick_${versions.ScalaBinary}:${versions.SlickVersion}"
+    implementation "com.typesafe.slick:slick-hikaricp_${versions.ScalaBinary}:${versions.SlickVersion}"
+
+    // Retries
+    implementation 'io.github.resilience4j:resilience4j-retry:1.7.1'
+
+    // Logging
+    implementation 'ch.qos.logback:logback-classic:1.2.3'
+
+    // Runtime
+    runtimeOnly 'org.postgresql:postgresql:42.2.22'
+
+    // Test dependencies
+    testImplementation "com.typesafe.akka:akka-persistence-testkit_${versions.ScalaBinary}"
+    testImplementation "com.typesafe.akka:akka-http-testkit_${versions.ScalaBinary}"
+    testImplementation "com.typesafe.akka:akka-actor-testkit-typed_${versions.ScalaBinary}:${versions.AkkaVersion}"
+    testImplementation 'junit:junit:4.12'
+}
+
+mainClassName = "com.search.engine.CaseSearchEngineIndexApp"
+
+run {
+    standardInput = System.in
+}

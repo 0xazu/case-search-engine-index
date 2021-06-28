@@ -1,0 +1,11 @@
+version: '2.2'
+services:
+  postgres:
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: case-search-engine
+      POSTGRES_PASSWORD: case-search-engine
+    volumes:
+      - "./initdb:/docker-entrypoint-initdb.d"
