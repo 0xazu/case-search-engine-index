@@ -4,11 +4,10 @@ This repository contains my solution to the case search engine coding challenge.
 
 ## Caveats
 
-* This is my first time using reactive programming and the AKKA framework. So it's probably I didn't follow all the best practices nor did everything the way it should be done using this architectural pattern.
+* This is my first time using reactive programming and the AKKA framework. So it's probable I didn't follow all the best practices nor did everything the way it should be done using this architectural pattern.
 * Due to the lack of time, test coverage is not at the level I would like to. I covered most of the general cases, but I'm missing corner cases and probably some behaviours.
 
 ## API
-
 
 Here are the operations we expose:
 
@@ -61,10 +60,8 @@ It deletes the document referenced with the id passed in the request path.
 
 ## How to build & run the project
 
-The project use gradle to build and run. The only external dependency is postgresql which can be run using docker-compose. The command to start postgresql is:
-
-To build the project, run:
+The project uses gradle to build and run. The only external dependency is postgresql which can be run using docker-compose. The command to start postgresql is:
 
 ```docker-compose up --build postgres```
 
-The application starts on localhost:8080
+The application starts on localhost:8080.
