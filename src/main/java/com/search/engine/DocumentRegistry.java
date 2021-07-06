@@ -50,6 +50,11 @@ public final class DocumentRegistry extends EventSourcedBehavior<DocumentRegistr
 
         public State indexDocument(String id, DataSource dataSource, Instant timestamp) {
             var document = documents.get(id);
+
+            if (document == null || document.getState() == DocumentState.DELETED) {
+                return this;
+            }
+
             document.setState(DocumentState.INDEXED);
 
             switch (dataSource) {
@@ -71,7 +76,7 @@ public final class DocumentRegistry extends EventSourcedBehavior<DocumentRegistr
             var document = documents.get(id);
 
             if (document == null || document.getState() == DocumentState.DELETED) {
-                return new State();
+                return this;
             }
 
             document.setState(DocumentState.DELETED);
@@ -83,12 +88,12 @@ public final class DocumentRegistry extends EventSourcedBehavior<DocumentRegistr
 
             if (document == null) {
                 log.error("The document {} cannot be deleted. It does not exist in the system", id);
-                return new State();
+                return this;
             }
 
             if (document.getState() == DocumentState.DELETED) {
                 log.error("The document {} is already deleted in the system", id);
-                return new State();
+                return this;
             }
 
             document.setState(DocumentState.TO_DELETE);
@@ -100,12 +105,12 @@ public final class DocumentRegistry extends EventSourcedBehavior<DocumentRegistr
 
             if (storedDocument == null) {
                 log.error("The document {} cannot be updated. It does not exist in the system", document.getId());
-                return new State();
+                return this;
             }
 
             if (storedDocument.getState() == DocumentState.DELETED) {
                 log.error("The document {} cannot be updated. It is in a deleted state", document.getId());
-                return new State();
+                return this;
             }
 
             storedDocument.setState(DocumentState.FETCHED);
@@ -238,11 +243,13 @@ public final class DocumentRegistry extends EventSourcedBehavior<DocumentRegistr
         return Effect()
                 .persist(new DocumentUpdated(payload))
                 .thenRun(() -> indexer.tell(new DocumentIndexer.IndexDocument(payload.getId(), payload.getDataSource(), refDocumentIndexed)))
-                .thenReply(updateDocumentCommand.replyTo, documentUpdated -> {
-                    if (documentUpdated.documents.isEmpty()) { // There was a problem updating the document
+                .thenReply(updateDocumentCommand.replyTo, documentUpdatedState -> {
+                    var document = documentUpdatedState.getDocument(payload.getId());
+
+                    if (document == null || document.getState() == DocumentState.DELETED || document.getState() == DocumentState.TO_DELETE) { // There was a problem updating the document
                         return StatusReply.error(new CaseSearchEngineException("Document was not updated. Could not be found or it was in an invalid state"));
                     } else {
-                        return StatusReply.success(documentUpdated.documentUpdatedResponse(documentUpdated.getDocument(payload.getId())));
+                        return StatusReply.success(documentUpdatedState.documentUpdatedResponse(documentUpdatedState.getDocument(payload.getId())));
                     }
                 });
     }
