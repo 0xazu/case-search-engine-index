@@ -1,6 +1,6 @@
 # case-search-engine-index
 
-This repository contains my solution to the case search engine coding challenge. The objective of the system is to process documents from different sources and index them in solr.
+The objective of the system is to process documents from different sources and index them in solr.
 
 ## Caveats
 
